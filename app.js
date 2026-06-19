@@ -1,12 +1,12 @@
 /* Replace these values with your company's real information. */
 const COMPANY = {
-  name: "SunSight Solar",
-  whatsapp: "", // International digits only, e.g. "919876543210"
-  panelWatts: 450,
-  annualYieldPerKw: 1450,
+  name: "Soltech Energy",
+  whatsapp: "918302573979", 
+  panelWatts: 550,
+  annualYieldPerKw: 1600,
   electricityRate: 8,
-  pricePerKwMin: 65000,
-  pricePerKwMax: 75000,
+  pricePerKwMin: 50000,
+  pricePerKwMax: 65000,
   currency: "₹",
 };
 
@@ -116,10 +116,10 @@ function defaultRoof() {
   const width = innerWidth;
   const height = innerHeight;
   state.roof = [
-    { x: width * 0.14, y: height * 0.25 },
-    { x: width * 0.84, y: height * 0.23 },
-    { x: width * 0.9, y: height * 0.54 },
-    { x: width * 0.1, y: height * 0.57 },
+    { x: width * 0.30, y: height * 0.30 },
+    { x: width * 0.70, y: height * 0.30 },
+    { x: width * 0.70, y: height * 0.60 },
+    { x: width * 0.30, y: height * 0.60 }
   ];
 }
 
@@ -160,6 +160,16 @@ function beginDesigner() {
   defaultRoof();
   setPhase("map");
   resizeCanvas();
+  document
+    .getElementById("cameraInstruction")
+    .style.display = "block";
+  document
+    .getElementById("gotItButton")
+    .addEventListener("click",()=>{
+  document
+    .getElementById("cameraInstruction")
+    .style.display = "none";
+  });
 }
 
 function setPhase(phase) {
