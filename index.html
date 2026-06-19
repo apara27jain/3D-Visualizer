@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#071712" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="description" content="Design and preview a solar system directly on your roof." />
-    <title>SunSight Solar Designer</title>
+    <title>Soltech Solar Visualizer</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -37,12 +37,23 @@
         </div>
 
         <div class="welcome-copy">
-          <p class="eyebrow">Visualise before you install</p>
-          <h1>Your roof.<br /><em>Powered by sunlight.</em></h1>
-          <p class="intro">
-            Point your phone at your roof and design a realistic solar system in minutes.
+          <p class="eyebrow"> 
+            SOLTECH ENERGY
           </p>
-
+          <h1>
+            See Solar Panels<br>
+            <em>On Your Roof In Seconds</em>
+          </h1>
+          <p class="intro">
+            Visualize your solar installation, estimate savings and get a free consultation from Soltech Energy.
+          </p>
+          
+          <div class="trust-points">
+            <span>✓ 500+ Installations</span>
+            <span>✓ Premium Tier-1 Panels</span>
+            <span>✓ 25 Year Warranty</span>
+          </div>
+          
           <div class="steps-preview">
             <span><b>1</b> Frame roof</span>
             <i></i>
@@ -60,6 +71,16 @@
       </section>
 
       <section id="viewer" class="viewer" hidden>
+        <div id="cameraInstruction" class="camera-instruction">
+          <h3>Point Camera Towards Your Roof</h3>
+          <p>
+            Stand 10–15 feet away and ensure the entire roof is visible.
+          </p>
+          <button id="gotItButton">
+            Got It
+          </button>
+        </div>
+        
         <header class="viewer-header">
           <button id="closeButton" class="round-button" aria-label="Close designer">×</button>
           <div class="progress">
@@ -172,7 +193,7 @@
         <header class="screen-header">
           <button id="backToDesignButton" class="round-button dark" aria-label="Back to designer">←</button>
           <div class="brand compact-brand">
-            <span class="brand-logo"><i></i></span><b data-company-name>SunSight Solar</b>
+            <img src="logo.jpg" class="brand-logo"><b data-company-name>SunSight Solar</b>
           </div>
           <button id="shareButton" class="round-button dark" aria-label="Share design">↗</button>
         </header>
