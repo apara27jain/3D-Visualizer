@@ -1,6 +1,15 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#071712" />
@@ -136,9 +145,8 @@
             </div>
 
             <div class="control-tabs" role="tablist">
-              <button class="active" data-control-tab="layout">Layout</button>
-              <button data-control-tab="fit">Fit</button>
-              <button data-control-tab="obstacles">Obstacles</button>
+              <button class="active" data-control-tab="layout">Panels</button>
+              <button data-control-tab="fit">Advanced</button>
             </div>
 
             <div id="layoutControls" class="control-content active">
@@ -217,6 +225,8 @@
             <article><span>₹</span><small>Savings / year</small><b id="resultSavings">₹41,760</b></article>
             <article><span>↗</span><small>25-year savings</small><b id="lifetimeSavings">₹10.4 lakh</b></article>
             <article><span>♻</span><small>CO₂ avoided / year</small><b id="co2Saved">3.7 tonnes</b></article>
+            <article><span>₹</span><small>Monthly Savings</small><b id="monthlySavings">₹4,000</b></article>
+            <article><span>🏛️</span><small>Government Subsidy</small><b id="subsidyAmount">₹0</b></article>
           </div>
 
           <section class="cost-card">
@@ -233,8 +243,10 @@
           </section>
 
           <button id="quoteButton" class="button primary">Get a free site assessment <b>→</b></button>
-          <button id="saveButton" class="button ghost dark-ghost">Save branded preview</button>
-          <p class="microcopy dark-copy">No obligation · Takes less than a minute</p>
+          <button id="proposalButton"class="button ghost dark-ghost">Get Detailed Proposal PDF </button>
+          <button id="saveButton" class="button ghost dark-ghost">Save branded preview </button>
+          <div class="soltech-contact"> 📞 +91 8302573979 <br>🌐 www.soltechenergy.co.in <br>📍 Jaipur, Rajasthan </div>
+          <p class="microcopy dark-copy">No obligation · Takes less than a minute </p>
         </div>
       </section>
 
