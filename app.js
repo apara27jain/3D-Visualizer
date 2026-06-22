@@ -1,12 +1,12 @@
 /* Replace these values with your company's real information. */
 const COMPANY = {
-  name: "Soltech Energy",
-  whatsapp: "918302573979", 
-  panelWatts: 550,
-  annualYieldPerKw: 1600,
+  name: "SunSight Solar",
+  whatsapp: "", // International digits only, e.g. "919876543210"
+  panelWatts: 450,
+  annualYieldPerKw: 1450,
   electricityRate: 8,
-  pricePerKwMin: 50000,
-  pricePerKwMax: 65000,
+  pricePerKwMin: 65000,
+  pricePerKwMax: 75000,
   currency: "₹",
 };
 
@@ -116,10 +116,10 @@ function defaultRoof() {
   const width = innerWidth;
   const height = innerHeight;
   state.roof = [
-    { x: width * 0.30, y: height * 0.30 },
-    { x: width * 0.70, y: height * 0.30 },
-    { x: width * 0.70, y: height * 0.60 },
-    { x: width * 0.30, y: height * 0.60 }
+    { x: width * 0.14, y: height * 0.25 },
+    { x: width * 0.84, y: height * 0.23 },
+    { x: width * 0.9, y: height * 0.54 },
+    { x: width * 0.1, y: height * 0.57 },
   ];
 }
 
@@ -160,16 +160,6 @@ function beginDesigner() {
   defaultRoof();
   setPhase("map");
   resizeCanvas();
-  document
-    .getElementById("cameraInstruction")
-    .style.display = "block";
-  document
-    .getElementById("gotItButton")
-    .addEventListener("click",()=>{
-  document
-    .getElementById("cameraInstruction")
-    .style.display = "none";
-  });
 }
 
 function setPhase(phase) {
@@ -562,23 +552,8 @@ function compositePreview(targetCanvas, targetContext, branded = false) {
 }
 
 function populateResults() {
-  const monthly = Math.round(data.savings / 12);
-  document.getElementById("monthlySavings").textContent = money(monthly);
-  const subsidy = Math.round(data.capacity * 30000);
-  document.getElementById("subsidyAmount").textContent = money(subsidy);
   const data = estimate();
   compositePreview(resultCanvas, resultCtx);
-  let subsidy = 0;
-  if (data.capacity <= 2) {
-  subsidy = 30000;
-  }
-  else if (data.capacity <= 3) {
-  subsidy = 78000;
-  }
-  else {
-  subsidy = 78000;
-  }
-  document.getElementById("subsidyAmount").textContent = money(subsidy);
   $("#resultPanelCount").textContent = `${data.installedPanels} panels`;
   $("#resultCapacity").textContent = `${data.capacity.toFixed(1)} kW system`;
   $("#resultEnergy").textContent = `${Math.round(data.energy).toLocaleString("en-IN")} kWh`;
@@ -617,45 +592,39 @@ function sharePreview() {
   }, "image/jpeg", .92);
 }
 
-function openWhatsappLead() {
+function submitLead(event) {
+  event.preventDefault();
   const data = estimate();
-  const message = `Hello Soltech Energy, I used your Solar Roof Visualizer.
-  Estimated Capacity: ${data.capacity.toFixed(1)} kW
-  Estimated Savings: ${money(data.savings)}
-  Please contact me for a FREE site assessment.`;
-  window.open( `https://wa.me/${COMPANY.whatsapp}?text=${encodeURIComponent(message)}`, "_blank");
+  const message = [
+    `Hello ${COMPANY.name}, I would like a free solar site assessment.`,
+    `Name: ${$("#customerName").value}`,
+    `Phone: ${$("#customerPhone").value}`,
+    `Location: ${$("#customerLocation").value}`,
+    `Preliminary design: ${data.installedPanels} panels, ${data.capacity.toFixed(1)} kW`,
+    `Estimated yearly generation: ${Math.round(data.energy).toLocaleString("en-IN")} kWh`,
+  ].join("\n");
+
+  if (!COMPANY.whatsapp) {
+    showToast("Add the company WhatsApp number in app.js first");
+    $("#whatsappNotice").textContent = "Company WhatsApp number has not been configured yet.";
+    return;
+  }
+  location.href = `https://wa.me/${COMPANY.whatsapp}?text=${encodeURIComponent(message)}`;
 }
 
 $$("[data-company-name]").forEach((element) => (element.textContent = COMPANY.name));
-$("#startButton").addEventListener("click", () => {
-  if(typeof gtag !== "undefined")
-  {
-    gtag('event','visualizer_opened');
-  }
-});
+$("#startButton").addEventListener("click", startCamera);
 $("#retryButton").addEventListener("click", startCamera);
 $("#demoButton").addEventListener("click", startDemo);
 $("#welcomeDemoButton").addEventListener("click", startDemo);
 $("#closeButton").addEventListener("click", () => { stopCamera(); showOnly("welcome"); });
-$("#confirmRoofButton").addEventListener("click", () => {
-  if(typeof gtag !== "undefined"){
-    gtag('event','roof_confirmed');
-  }
-  snapshot();
-  setPhase("design");
-  updateEstimates();
-});
+$("#confirmRoofButton").addEventListener("click", () => { snapshot(); setPhase("design"); updateEstimates(); });
 $("#editRoofButton").addEventListener("click", () => setPhase("map"));
-$("#reviewButton").addEventListener("click", () => { if(typeof gtag !== "undefined"){
-  gtag('event','results_viewed');} populateResults(); showOnly("results"); 
-});
+$("#reviewButton").addEventListener("click", () => { populateResults(); showOnly("results"); });
 $("#backToDesignButton").addEventListener("click", () => { showOnly("viewer"); draw(); });
 $("#saveButton").addEventListener("click", savePreview);
 $("#shareButton").addEventListener("click", sharePreview);
-$("#quoteButton").addEventListener("click",if(typeof gtag !== "undefined")
-{
-  gtag('event','whatsapp_clicked');
-}openWhatsappLead);
+$("#quoteButton").addEventListener("click", () => ($("#leadModal").hidden = false));
 $("#leadForm").addEventListener("submit", submitLead);
 $$("[data-close-modal]").forEach((button) => button.addEventListener("click", () => ($("#leadModal").hidden = true)));
 $("#helpButton").addEventListener("click", () => ($("#helpModal").hidden = false));
@@ -681,15 +650,6 @@ $$("[data-control-tab]").forEach((button) => button.addEventListener("click", ()
 $$("[data-obstacle]").forEach((button) => button.addEventListener("click", () => addObstacle(button.dataset.obstacle)));
 $("#clearObstaclesButton").addEventListener("click", () => { if (state.obstacles.length) snapshot(); state.obstacles = []; updateEstimates(); });
 
-function requestProposal(){
-  const data = estimate();
-  const message = `Hello Soltech Energy, I used the Solar Visualizer. I would like a detailed proposal.
-  Estimated Capacity:${data.capacity.toFixed(1)} kW 
-  Estimated Savings: ${money(data.savings)} 
-  Please send me a proposal PDF.`;
-  window.open(`https://wa.me/${COMPANY.whatsapp}?text=${encodeURIComponent(message)}`,"_blank");
-}
-
 UI.cornerHandles.forEach((handle) => {
   handle.addEventListener("pointerdown", startHandleDrag);
   handle.addEventListener("pointermove", moveHandle);
@@ -701,6 +661,6 @@ canvas.addEventListener("pointermove", pointerMove);
 canvas.addEventListener("pointerup", pointerUp);
 canvas.addEventListener("pointercancel", pointerUp);
 window.addEventListener("resize", resizeCanvas);
-document.getElementById("proposalButton").addEventListener("click",requestProposal);
+
 resizeCanvas();
 updateEstimates();

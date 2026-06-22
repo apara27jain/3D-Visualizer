@@ -1,21 +1,12 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){
-        dataLayer.push(arguments);
-      }
-      gtag('js', new Date());
-      gtag('config', 'G-XXXXXXXXXX');
-    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#071712" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="description" content="Design and preview a solar system directly on your roof." />
-    <title>Soltech Solar Visualizer</title>
+    <title>SunSight Solar Designer</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -46,23 +37,12 @@
         </div>
 
         <div class="welcome-copy">
-          <p class="eyebrow"> 
-            SOLTECH ENERGY
-          </p>
-          <h1>
-            See Solar Panels<br>
-            <em>On Your Roof In Seconds</em>
-          </h1>
+          <p class="eyebrow">Visualise before you install</p>
+          <h1>Your roof.<br /><em>Powered by sunlight.</em></h1>
           <p class="intro">
-            Visualize your solar installation, estimate savings and get a free consultation from Soltech Energy.
+            Point your phone at your roof and design a realistic solar system in minutes.
           </p>
-          
-          <div class="trust-points">
-            <span>✓ 500+ Installations</span>
-            <span>✓ Premium Tier-1 Panels</span>
-            <span>✓ 25 Year Warranty</span>
-          </div>
-          
+
           <div class="steps-preview">
             <span><b>1</b> Frame roof</span>
             <i></i>
@@ -80,16 +60,6 @@
       </section>
 
       <section id="viewer" class="viewer" hidden>
-        <div id="cameraInstruction" class="camera-instruction">
-          <h3>Point Camera Towards Your Roof</h3>
-          <p>
-            Stand 10–15 feet away and ensure the entire roof is visible.
-          </p>
-          <button id="gotItButton">
-            Got It
-          </button>
-        </div>
-        
         <header class="viewer-header">
           <button id="closeButton" class="round-button" aria-label="Close designer">×</button>
           <div class="progress">
@@ -145,8 +115,9 @@
             </div>
 
             <div class="control-tabs" role="tablist">
-              <button class="active" data-control-tab="layout">Panels</button>
-              <button data-control-tab="fit">Advanced</button>
+              <button class="active" data-control-tab="layout">Layout</button>
+              <button data-control-tab="fit">Fit</button>
+              <button data-control-tab="obstacles">Obstacles</button>
             </div>
 
             <div id="layoutControls" class="control-content active">
@@ -201,7 +172,7 @@
         <header class="screen-header">
           <button id="backToDesignButton" class="round-button dark" aria-label="Back to designer">←</button>
           <div class="brand compact-brand">
-            <img src="logo.jpg" class="brand-logo"><b data-company-name>SunSight Solar</b>
+            <span class="brand-logo"><i></i></span><b data-company-name>SunSight Solar</b>
           </div>
           <button id="shareButton" class="round-button dark" aria-label="Share design">↗</button>
         </header>
@@ -225,8 +196,6 @@
             <article><span>₹</span><small>Savings / year</small><b id="resultSavings">₹41,760</b></article>
             <article><span>↗</span><small>25-year savings</small><b id="lifetimeSavings">₹10.4 lakh</b></article>
             <article><span>♻</span><small>CO₂ avoided / year</small><b id="co2Saved">3.7 tonnes</b></article>
-            <article><span>₹</span><small>Monthly Savings</small><b id="monthlySavings">₹4,000</b></article>
-            <article><span>🏛️</span><small>Government Subsidy</small><b id="subsidyAmount">₹0</b></article>
           </div>
 
           <section class="cost-card">
@@ -243,10 +212,8 @@
           </section>
 
           <button id="quoteButton" class="button primary">Get a free site assessment <b>→</b></button>
-          <button id="proposalButton"class="button ghost dark-ghost">Get Detailed Proposal PDF </button>
-          <button id="saveButton" class="button ghost dark-ghost">Save branded preview </button>
-          <div class="soltech-contact"> 📞 +91 8302573979 <br>🌐 www.soltechenergy.co.in <br>📍 Jaipur, Rajasthan </div>
-          <p class="microcopy dark-copy">No obligation · Takes less than a minute </p>
+          <button id="saveButton" class="button ghost dark-ghost">Save branded preview</button>
+          <p class="microcopy dark-copy">No obligation · Takes less than a minute</p>
         </div>
       </section>
 
