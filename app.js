@@ -562,8 +562,23 @@ function compositePreview(targetCanvas, targetContext, branded = false) {
 }
 
 function populateResults() {
+  const monthly = Math.round(data.savings / 12);
+  document.getElementById("monthlySavings").textContent = money(monthly);
+  const subsidy = Math.round(data.capacity * 30000);
+  document.getElementById("subsidyAmount").textContent = money(subsidy);
   const data = estimate();
   compositePreview(resultCanvas, resultCtx);
+  let subsidy = 0;
+  if (data.capacity <= 2) {
+  subsidy = 30000;
+  }
+  else if (data.capacity <= 3) {
+  subsidy = 78000;
+  }
+  else {
+  subsidy = 78000;
+  }
+  document.getElementById("subsidyAmount").textContent = money(subsidy);
   $("#resultPanelCount").textContent = `${data.installedPanels} panels`;
   $("#resultCapacity").textContent = `${data.capacity.toFixed(1)} kW system`;
   $("#resultEnergy").textContent = `${Math.round(data.energy).toLocaleString("en-IN")} kWh`;
@@ -602,39 +617,45 @@ function sharePreview() {
   }, "image/jpeg", .92);
 }
 
-function submitLead(event) {
-  event.preventDefault();
+function openWhatsappLead() {
   const data = estimate();
-  const message = [
-    `Hello ${COMPANY.name}, I would like a free solar site assessment.`,
-    `Name: ${$("#customerName").value}`,
-    `Phone: ${$("#customerPhone").value}`,
-    `Location: ${$("#customerLocation").value}`,
-    `Preliminary design: ${data.installedPanels} panels, ${data.capacity.toFixed(1)} kW`,
-    `Estimated yearly generation: ${Math.round(data.energy).toLocaleString("en-IN")} kWh`,
-  ].join("\n");
-
-  if (!COMPANY.whatsapp) {
-    showToast("Add the company WhatsApp number in app.js first");
-    $("#whatsappNotice").textContent = "Company WhatsApp number has not been configured yet.";
-    return;
-  }
-  location.href = `https://wa.me/${COMPANY.whatsapp}?text=${encodeURIComponent(message)}`;
+  const message = `Hello Soltech Energy, I used your Solar Roof Visualizer.
+  Estimated Capacity: ${data.capacity.toFixed(1)} kW
+  Estimated Savings: ${money(data.savings)}
+  Please contact me for a FREE site assessment.`;
+  window.open( `https://wa.me/${COMPANY.whatsapp}?text=${encodeURIComponent(message)}`, "_blank");
 }
 
 $$("[data-company-name]").forEach((element) => (element.textContent = COMPANY.name));
-$("#startButton").addEventListener("click", startCamera);
+$("#startButton").addEventListener("click", () => {
+  if(typeof gtag !== "undefined")
+  {
+    gtag('event','visualizer_opened');
+  }
+});
 $("#retryButton").addEventListener("click", startCamera);
 $("#demoButton").addEventListener("click", startDemo);
 $("#welcomeDemoButton").addEventListener("click", startDemo);
 $("#closeButton").addEventListener("click", () => { stopCamera(); showOnly("welcome"); });
-$("#confirmRoofButton").addEventListener("click", () => { snapshot(); setPhase("design"); updateEstimates(); });
+$("#confirmRoofButton").addEventListener("click", () => {
+  if(typeof gtag !== "undefined"){
+    gtag('event','roof_confirmed');
+  }
+  snapshot();
+  setPhase("design");
+  updateEstimates();
+});
 $("#editRoofButton").addEventListener("click", () => setPhase("map"));
-$("#reviewButton").addEventListener("click", () => { populateResults(); showOnly("results"); });
+$("#reviewButton").addEventListener("click", () => { if(typeof gtag !== "undefined"){
+  gtag('event','results_viewed');} populateResults(); showOnly("results"); 
+});
 $("#backToDesignButton").addEventListener("click", () => { showOnly("viewer"); draw(); });
 $("#saveButton").addEventListener("click", savePreview);
 $("#shareButton").addEventListener("click", sharePreview);
-$("#quoteButton").addEventListener("click", () => ($("#leadModal").hidden = false));
+$("#quoteButton").addEventListener("click",if(typeof gtag !== "undefined")
+{
+  gtag('event','whatsapp_clicked');
+}openWhatsappLead);
 $("#leadForm").addEventListener("submit", submitLead);
 $$("[data-close-modal]").forEach((button) => button.addEventListener("click", () => ($("#leadModal").hidden = true)));
 $("#helpButton").addEventListener("click", () => ($("#helpModal").hidden = false));
@@ -660,6 +681,15 @@ $$("[data-control-tab]").forEach((button) => button.addEventListener("click", ()
 $$("[data-obstacle]").forEach((button) => button.addEventListener("click", () => addObstacle(button.dataset.obstacle)));
 $("#clearObstaclesButton").addEventListener("click", () => { if (state.obstacles.length) snapshot(); state.obstacles = []; updateEstimates(); });
 
+function requestProposal(){
+  const data = estimate();
+  const message = `Hello Soltech Energy, I used the Solar Visualizer. I would like a detailed proposal.
+  Estimated Capacity:${data.capacity.toFixed(1)} kW 
+  Estimated Savings: ${money(data.savings)} 
+  Please send me a proposal PDF.`;
+  window.open(`https://wa.me/${COMPANY.whatsapp}?text=${encodeURIComponent(message)}`,"_blank");
+}
+
 UI.cornerHandles.forEach((handle) => {
   handle.addEventListener("pointerdown", startHandleDrag);
   handle.addEventListener("pointermove", moveHandle);
@@ -671,6 +701,6 @@ canvas.addEventListener("pointermove", pointerMove);
 canvas.addEventListener("pointerup", pointerUp);
 canvas.addEventListener("pointercancel", pointerUp);
 window.addEventListener("resize", resizeCanvas);
-
+document.getElementById("proposalButton").addEventListener("click",requestProposal);
 resizeCanvas();
 updateEstimates();
