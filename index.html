@@ -1,266 +1,45 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#071712" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="description" content="Design and preview a solar system directly on your roof, powered by Soltech Energy." />
-    <title>Soltech Energy — Roof Designer</title>
+    <meta name="theme-color" content="#f8fbff" />
+    <meta name="description" content="Soltech Energy embeddable 3D solar camera visualizer." />
+    <title>Soltech Energy 3D Solar Visualizer</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <!-- TEMPORARY: for standalone testing only. Remove this button when embedding —
-         call window.openSolarVisualizer() from your own site's button instead. -->
-    <button
-      id="testLauncherButton"
-      class="sv-launcher"
-      onclick="window.openSolarVisualizer()"
-      aria-label="Design my roof"
-    >
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 8.5C4 7.67157 4.67157 7 5.5 7H7.5L8.7 5.2C8.98 4.78 9.45 4.5 9.97 4.5H14.03C14.55 4.5 15.02 4.78 15.3 5.2L16.5 7H18.5C19.3284 7 20 7.67157 20 8.5V17.5C20 18.3284 19.3284 19 18.5 19H5.5C4.67157 19 4 18.3284 4 17.5V8.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-        <circle cx="12" cy="13" r="3.4" stroke="currentColor" stroke-width="1.6"/>
-        <circle cx="16.6" cy="9.6" r=".9" fill="currentColor"/>
-      </svg>
-      <span>Design my roof</span>
+    <button id="visualizerLauncher" class="camera-launcher" type="button" onclick="window.openSolarVisualizer()" aria-label="Try 3D solar visualizer">
+      <span class="camera-pulse"></span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.75 7.5h2.64l1.15-1.82A1.45 1.45 0 0 1 9.77 5h4.46c.5 0 .96.26 1.23.68l1.15 1.82h2.64c.97 0 1.75.78 1.75 1.75v8A1.75 1.75 0 0 1 19.25 19H4.75A1.75 1.75 0 0 1 3 17.25v-8c0-.97.78-1.75 1.75-1.75Zm7.25 9.2a3.95 3.95 0 1 0 0-7.9 3.95 3.95 0 0 0 0 7.9Zm0-1.7a2.25 2.25 0 1 1 0-4.5 2.25 2.25 0 0 1 0 4.5Zm5.35-5.03a.88.88 0 1 0 0-1.76.88.88 0 0 0 0 1.76Z"/></svg>
+      <span class="launcher-copy">Camera</span>
     </button>
 
-    <div id="solarVisualizerOverlay" class="sv-overlay" hidden>
-    <main class="app">
-      <button id="exitVisualizerButton" class="sv-exit" aria-label="Close solar visualizer">×</button>
-      <video id="camera" autoplay muted playsinline></video>
-      <div id="demoScene" class="demo-scene" hidden>
-        <div class="demo-sky"></div>
-        <div class="demo-roof"></div>
-        <div class="demo-wall"></div>
-      </div>
-      <canvas id="solarCanvas" aria-label="Interactive solar roof design"></canvas>
-      <canvas id="captureCanvas" hidden></canvas>
+    <div id="solarVisualizer" class="visualizer" hidden>
+      <div class="visualizer-stage">
+        <video id="camera" autoplay muted playsinline></video>
+        <canvas id="solarCanvas" aria-label="3D solar roof preview"></canvas>
+        <canvas id="captureCanvas" hidden></canvas>
 
-      <section id="welcome" class="welcome">
-        <header class="welcome-header">
-          <div class="brand">
-            <span class="brand-logo" aria-hidden="true"><img data-company-logo alt="" hidden onerror="this.hidden=true;this.closest('.brand-logo').classList.remove('has-image')" /><i></i></span>
-            <span><b data-company-name>Soltech Energy</b><small>Roof Designer</small></span>
-          </div>
-          <span class="privacy-pill">Private & secure</span>
+        <header class="ar-topbar">
+          <button id="closeButton" class="icon-button" type="button" aria-label="Close visualizer">×</button>
+          <div class="brand-logo-large"><img src="logo-full.png" alt="Soltech Energy" /></div>
+          <button id="captureButton" class="capture-small" type="button">Save</button>
         </header>
 
-        <div class="ambient-glow" aria-hidden="true"></div>
+        <div id="scanCard" class="scan-card"><span class="scan-dot"></span><div><b>Point camera at the roof</b><small>Solar panels appear automatically.</small></div></div>
+        <div class="focus-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 
-        <div class="welcome-copy">
-          <p class="eyebrow">Visualise before you install</p>
-          <h1>Let the sun<br /><em>work for you.</em></h1>
-          <p class="intro">
-            Point your phone at your roof and design a realistic Soltech Energy solar system in minutes.
-          </p>
+        <footer class="ar-footer">
+          <button id="whatsAppButton" class="whatsapp-button" type="button"><span class="wa-icon" aria-hidden="true"></span>Get Free Consultation</button>
+        </footer>
 
-          <div class="steps-preview">
-            <span><b>1</b> Frame roof</span>
-            <i></i>
-            <span><b>2</b> Design</span>
-            <i></i>
-            <span><b>3</b> Get estimate</span>
-          </div>
-
-          <button id="startButton" class="button primary">
-            <span>Start solar design</span><b>→</b>
-          </button>
-          <button id="welcomeDemoButton" class="button ghost">Explore with a sample roof</button>
-          <p class="microcopy">Your camera feed never leaves this device.</p>
-        </div>
-      </section>
-
-      <section id="viewer" class="viewer" hidden>
-        <header class="viewer-header">
-          <button id="closeButton" class="round-button" aria-label="Back to start">←</button>
-          <div class="progress">
-            <span class="active"></span><span></span><span></span>
-            <small id="stepLabel">Frame your roof</small>
-          </div>
-          <button id="helpButton" class="round-button help-button" aria-label="Show help">?</button>
-        </header>
-
-        <div id="guidance" class="guidance">
-          <span id="guidanceIcon">⌗</span>
-          <div><b id="guidanceTitle">Fit the guide to your roof</b><small id="guidanceText">Drag each corner onto the roof edges</small></div>
-        </div>
-
-        <div id="cornerHandles" class="corner-handles">
-          <button class="roof-handle" data-corner="0" aria-label="Top-left roof corner"><span>1</span></button>
-          <button class="roof-handle" data-corner="1" aria-label="Top-right roof corner"><span>2</span></button>
-          <button class="roof-handle" data-corner="2" aria-label="Bottom-right roof corner"><span>3</span></button>
-          <button class="roof-handle" data-corner="3" aria-label="Bottom-left roof corner"><span>4</span></button>
-        </div>
-
-        <div id="gestureHint" class="gesture-hint" hidden>
-          <span>☝</span> Drag to move · Pinch to resize · Twist to rotate
-        </div>
-
-        <div class="top-actions">
-          <button id="undoButton" class="tool-chip" aria-label="Undo last change" disabled>↶ <span>Undo</span></button>
-          <button id="lockButton" class="tool-chip" aria-pressed="false">◇ <span>Lock</span></button>
-        </div>
-
-        <section id="designSheet" class="design-sheet">
-          <button id="sheetHandle" class="sheet-handle" aria-label="Expand controls"><span></span></button>
-
-          <div id="mapPanel" class="sheet-panel active">
-            <div class="sheet-heading">
-              <div><span class="step-number">1</span><div><b>Mark your roof</b><small>Match all four roof corners</small></div></div>
-              <span id="mapStatus" class="status-badge">Adjusting</span>
-            </div>
-            <div class="tip"><span>✦</span><p>Include only the clear roof surface where panels can be installed.</p></div>
-            <button id="confirmRoofButton" class="button primary compact">Roof area looks right <b>→</b></button>
-          </div>
-
-          <div id="designPanel" class="sheet-panel">
-            <div class="sheet-heading">
-              <div><span class="step-number">2</span><div><b>Design your system</b><small id="layoutSummary">8 panels · Landscape</small></div></div>
-              <button id="editRoofButton" class="small-link">Edit roof</button>
-            </div>
-
-            <div class="live-stats">
-              <div><small>System</small><b id="systemSize">3.6 kW</b></div>
-              <div><small>Yearly energy</small><b id="annualEnergy">5,220 kWh</b></div>
-              <div><small>Yearly savings</small><b id="annualSavings">₹41,760</b></div>
-            </div>
-
-            <div class="control-tabs" role="tablist">
-              <button class="active" data-control-tab="layout">Layout</button>
-              <button data-control-tab="fit">Fit</button>
-              <button data-control-tab="obstacles">Obstacles</button>
-            </div>
-
-            <div id="layoutControls" class="control-content active">
-              <div class="control-row">
-                <label>Panel count</label>
-                <div class="stepper">
-                  <button id="removePanelButton" aria-label="Remove panels">−</button>
-                  <strong id="panelCount">8</strong>
-                  <button id="addPanelButton" aria-label="Add panels">+</button>
-                </div>
-              </div>
-              <div class="control-row">
-                <label>Orientation</label>
-                <div class="segmented">
-                  <button id="landscapeButton" class="active">Landscape</button>
-                  <button id="portraitButton">Portrait</button>
-                </div>
-              </div>
-              <div class="control-row range-row">
-                <label for="spacingControl">Panel spacing <output id="spacingOutput">6 cm</output></label>
-                <input id="spacingControl" type="range" min="2" max="18" value="6" />
-              </div>
-            </div>
-
-            <div id="fitControls" class="control-content">
-              <p class="control-note">Fine-tune the array after using touch gestures on the roof.</p>
-              <div class="range-grid">
-                <label for="scaleControl">Size <output id="scaleOutput">100%</output></label>
-                <input id="scaleControl" type="range" min="50" max="125" value="100" />
-                <label for="rotateControl">Angle <output id="rotateOutput">0°</output></label>
-                <input id="rotateControl" type="range" min="-45" max="45" value="0" />
-              </div>
-              <button id="resetFitButton" class="button subtle compact">Reset position</button>
-            </div>
-
-            <div id="obstaclesControls" class="control-content">
-              <p class="control-note">Mark water tanks, chimneys, skylights or shaded areas. Panels underneath are removed automatically.</p>
-              <div class="obstacle-actions">
-                <button class="obstacle-button" data-obstacle="tank"><span>▣</span>Water tank</button>
-                <button class="obstacle-button" data-obstacle="chimney"><span>▥</span>Chimney</button>
-                <button class="obstacle-button" data-obstacle="shade"><span>◒</span>Shade</button>
-              </div>
-              <button id="clearObstaclesButton" class="small-link centered">Clear all obstacles</button>
-            </div>
-
-            <button id="reviewButton" class="button primary compact">Review savings <b>→</b></button>
-          </div>
-        </section>
-      </section>
-
-      <section id="results" class="results screen" hidden>
-        <header class="screen-header">
-          <button id="backToDesignButton" class="round-button dark" aria-label="Back to designer">←</button>
-          <div class="brand compact-brand">
-            <span class="brand-logo"><img data-company-logo alt="" hidden onerror="this.hidden=true;this.closest('.brand-logo').classList.remove('has-image')" /><i></i></span><b data-company-name>Soltech Energy</b>
-          </div>
-          <button id="shareButton" class="round-button dark" aria-label="Share design">↗</button>
-        </header>
-
-        <div class="results-scroll">
-          <div class="success-mark">✓</div>
-          <p class="eyebrow">Your preliminary solar design</p>
-          <h2>Turn sunshine into savings.</h2>
-          <p class="results-intro">Here is an initial estimate based on your visual design.</p>
-
-          <div id="previewCard" class="preview-card">
-            <canvas id="resultCanvas"></canvas>
-            <div class="preview-overlay">
-              <span><b id="resultPanelCount">8 panels</b><small id="resultCapacity">3.6 kW system</small></span>
-              <span class="sunny-pill">Good potential</span>
-            </div>
-          </div>
-
-          <div class="estimate-grid">
-            <article><span>☀</span><small>Energy / year</small><b id="resultEnergy">5,220 kWh</b></article>
-            <article><span>₹</span><small>Savings / year</small><b id="resultSavings">₹41,760</b></article>
-            <article><span>↗</span><small>25-year savings</small><b id="lifetimeSavings">₹10.4 lakh</b></article>
-            <article><span>♻</span><small>CO₂ avoided / year</small><b id="co2Saved">3.7 tonnes</b></article>
-          </div>
-
-          <section class="cost-card">
-            <div><small>Indicative installed price</small><b id="estimatedCost">₹2.34–₹2.70 lakh</b></div>
-            <span id="paybackPeriod">Approx. 6.0 year payback</span>
-            <p>Final pricing depends on roof structure, inverter, mounting, approvals and site conditions.</p>
-          </section>
-
-          <section class="assumptions">
-            <button id="assumptionsToggle">How this estimate works <span>⌄</span></button>
-            <div id="assumptionsBody" hidden>
-              <p>Uses <b id="tariffAssumption">₹8.00/kWh</b> electricity value, <b id="yieldAssumption">1,450 kWh/kW/year</b> solar yield and a 450 W panel. A site survey will refine shading, direction and roof pitch.</p>
-            </div>
-          </section>
-
-          <button id="quoteButton" class="button whatsapp-cta">
-            <svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor" aria-hidden="true"><path d="M12.01 2C6.55 2 2.13 6.42 2.13 11.88c0 1.87.51 3.62 1.4 5.13L2 22l5.13-1.5a9.83 9.83 0 0 0 4.88 1.3h.01c5.46 0 9.88-4.42 9.88-9.88C21.9 6.42 17.48 2 12.01 2Zm0 18.02a8.1 8.1 0 0 1-4.13-1.13l-.3-.18-3.05.89.9-2.97-.19-.31a8.1 8.1 0 0 1-1.24-4.44c0-4.48 3.65-8.13 8.14-8.13 4.48 0 8.13 3.65 8.13 8.13a8.14 8.14 0 0 1-8.26 8.14Zm4.48-6.1c-.25-.12-1.45-.72-1.68-.8-.22-.08-.39-.12-.55.13-.16.24-.63.8-.77.96-.14.16-.28.18-.53.06-.25-.12-1.04-.38-1.98-1.22-.73-.65-1.23-1.46-1.37-1.7-.14-.25-.02-.38.11-.5.11-.11.25-.28.37-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.32-.75-1.8-.2-.48-.4-.42-.55-.42h-.47c-.16 0-.42.06-.64.3-.22.24-.85.83-.85 2.02s.87 2.35 1 2.51c.12.16 1.7 2.6 4.13 3.64.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.45-.59 1.65-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.47-.28Z"/></svg>
-            <span>Get a free assessment on WhatsApp</span>
-          </button>
-          <button id="saveButton" class="button ghost dark-ghost">Save branded preview</button>
-          <p class="microcopy dark-copy">No obligation · Opens WhatsApp with your design details</p>
-        </div>
-      </section>
-
-      <div id="helpModal" class="modal" hidden>
-        <div class="modal-backdrop" data-close-help></div>
-        <div class="modal-card help-card">
-          <button class="modal-close" data-close-help aria-label="Close help">×</button>
-          <p class="eyebrow">Quick guide</p>
-          <h2>A better preview in three steps</h2>
-          <ol>
-            <li><b>Stand back.</b><span>Keep the complete roof visible with good daylight.</span></li>
-            <li><b>Mark the roof.</b><span>Drag the four green handles to its usable edges.</span></li>
-            <li><b>Fine-tune.</b><span>Move, pinch and rotate panels, then mark obstacles.</span></li>
-          </ol>
-          <button class="button primary compact" data-close-help>Got it</button>
-        </div>
+        <section id="cameraError" class="state-panel" hidden><img src="logo-mark.png" alt="" /><h2>Camera permission needed</h2><p>Please allow camera access in Safari or Chrome, then try again.</p><button id="retryButton" class="primary-button" type="button">Open camera again</button><button id="demoButton" class="ghost-button" type="button">Preview without camera</button></section>
+        <section id="feedbackDialog" class="dialog" hidden><div class="dialog-card"><button class="dialog-close" type="button" data-close-feedback>×</button><p class="eyebrow">Saved successfully</p><h2>How was your visualizer experience?</h2><div id="ratingStars" class="stars" aria-label="Rate experience"><button type="button" data-rating="1">★</button><button type="button" data-rating="2">★</button><button type="button" data-rating="3">★</button><button type="button" data-rating="4">★</button><button type="button" data-rating="5">★</button></div><textarea id="feedbackComment" rows="3" placeholder="Optional comment"></textarea><button id="submitFeedbackButton" class="primary-button" type="button">Submit feedback</button></div></section>
+        <div id="toast" class="toast" role="status" aria-live="polite"></div><div id="flash" class="flash"></div>
       </div>
-
-      <div id="cameraError" class="error-screen" hidden>
-        <span class="error-symbol">⌁</span>
-        <p class="eyebrow">Camera unavailable</p>
-        <h2>We need permission to see your roof.</h2>
-        <p>Allow camera access in Safari or Chrome settings, then return here. Your video is processed only on this device.</p>
-        <button id="retryButton" class="button primary">Try camera again</button>
-        <button id="demoButton" class="button ghost">Use a sample roof instead</button>
-      </div>
-
-      <div id="toast" class="toast" role="status" aria-live="polite"></div>
-      <div id="flash" class="flash"></div>
-    </main>
     </div>
     <script src="app.js"></script>
   </body>
 </html>
+

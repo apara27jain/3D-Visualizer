@@ -1,41 +1,45 @@
-# Soltech Energy — Roof Designer
+﻿# Soltech Energy 3D Solar Visualizer
 
-A mobile-first solar sales experience that lets a homeowner map a roof, design an
-interactive panel array, mark obstacles, review financial estimates, save a branded
-preview and request a site assessment.
+This is now a small website widget, not a full landing page and not a separate app.
 
-## Run it
+## What the user sees
 
-Camera access requires a secure origin. During local development, `localhost` is accepted:
+- A small animated camera button at the bottom-right corner of the website.
+- On click, the camera view opens directly.
+- Solar panels appear automatically on the camera view.
+- Save/Capture button is available on the camera screen.
+- After saving, a 5-star feedback dialog appears.
+- A WhatsApp consultation button is available with a WhatsApp icon.
 
-```powershell
-python -m http.server 8080
+## WhatsApp setup
+
+Open `app.js` and replace:
+
+```js
+whatsapp: "",
 ```
 
-Then open `http://localhost:8080` on a computer. For a phone, deploy the folder to any
-HTTPS host (such as Netlify, Vercel, or your company website).
+with your business WhatsApp number in international format:
 
-## Included
+```js
+whatsapp: "919876543210",
+```
 
-- Four-corner roof mapping
-- Rear-facing live camera and sample-roof mode
-- One-finger movement, pinch scaling and twist rotation
-- Landscape and portrait panel layouts
-- Water tank, chimney and shade exclusion zones
-- System, energy, savings, cost, payback and carbon estimates
-- Branded image download and native sharing
-- Customer enquiry form with a pre-filled WhatsApp hand-off
-- Responsive phone and desktop layouts
+## Embed on your actual website
 
-## Company configuration
+Keep these files together:
 
-The `COMPANY` object at the top of `app.js` is already set for Soltech Energy
-(name, WhatsApp number `918302573979`, panel wattage, tariff, yield and price range).
-Update `pricePerKwMin`/`pricePerKwMax` and `electricityRate` if your real installed
-pricing or local tariff differs from the current placeholders.
+- `styles.css`
+- `app.js`
+- `logo-mark.png`
 
-## Production roadmap
+Add the visualizer HTML from `index.html` to your page, or keep `index.html` as a reference.
+The important launcher is:
 
-The current version uses guided manual roof mapping, which works across modern mobile
-browsers. Automatic physical plane detection still requires device-specific WebXR/ARCore
-and native ARKit work. Estimates remain indicative until a professional site survey.
+```html
+<button class="camera-launcher" onclick="window.openSolarVisualizer()">...</button>
+```
+
+## Note
+
+This browser version avoids manual marking completely. It creates a smart automatic overlay with more realistic glass-style solar panels. True roof-plane detection like native ARKit/ARCore still needs a native mobile app for full accuracy.
