@@ -1,4 +1,4 @@
-# SunSight Solar Designer
+# Soltech Energy — Roof Designer
 
 A mobile-first solar sales experience that lets a homeowner map a roof, design an
 interactive panel array, mark obstacles, review financial estimates, save a branded
@@ -29,9 +29,10 @@ HTTPS host (such as Netlify, Vercel, or your company website).
 
 ## Company configuration
 
-Update the `COMPANY` object at the top of `app.js` with the real company name,
-WhatsApp number, panel wattage, electricity tariff, solar yield and price range.
-The WhatsApp number must use international digits only, such as `919876543210`.
+The `COMPANY` object at the top of `app.js` is already set for Soltech Energy
+(name, WhatsApp number `918302573979`, panel wattage, tariff, yield and price range).
+Update `pricePerKwMin`/`pricePerKwMax` and `electricityRate` if your real installed
+pricing or local tariff differs from the current placeholders.
 
 ## Production roadmap
 

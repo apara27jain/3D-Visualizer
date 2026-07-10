@@ -5,12 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#071712" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="description" content="Design and preview a solar system directly on your roof." />
-    <title>SunSight Solar Designer</title>
+    <meta name="description" content="Design and preview a solar system directly on your roof, powered by Soltech Energy." />
+    <title>Soltech Energy — Roof Designer</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <!-- TEMPORARY: for standalone testing only. Remove this button when embedding —
+         call window.openSolarVisualizer() from your own site's button instead. -->
+    <button
+      id="testLauncherButton"
+      class="sv-launcher"
+      onclick="window.openSolarVisualizer()"
+      aria-label="Design my roof"
+    >
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 8.5C4 7.67157 4.67157 7 5.5 7H7.5L8.7 5.2C8.98 4.78 9.45 4.5 9.97 4.5H14.03C14.55 4.5 15.02 4.78 15.3 5.2L16.5 7H18.5C19.3284 7 20 7.67157 20 8.5V17.5C20 18.3284 19.3284 19 18.5 19H5.5C4.67157 19 4 18.3284 4 17.5V8.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        <circle cx="12" cy="13" r="3.4" stroke="currentColor" stroke-width="1.6"/>
+        <circle cx="16.6" cy="9.6" r=".9" fill="currentColor"/>
+      </svg>
+      <span>Design my roof</span>
+    </button>
+
+    <div id="solarVisualizerOverlay" class="sv-overlay" hidden>
     <main class="app">
+      <button id="exitVisualizerButton" class="sv-exit" aria-label="Close solar visualizer">×</button>
       <video id="camera" autoplay muted playsinline></video>
       <div id="demoScene" class="demo-scene" hidden>
         <div class="demo-sky"></div>
@@ -23,24 +41,19 @@
       <section id="welcome" class="welcome">
         <header class="welcome-header">
           <div class="brand">
-            <span class="brand-logo" aria-hidden="true"><i></i></span>
-            <span><b data-company-name>SunSight Solar</b><small>Roof Designer</small></span>
+            <span class="brand-logo" aria-hidden="true"><img data-company-logo alt="" hidden onerror="this.hidden=true;this.closest('.brand-logo').classList.remove('has-image')" /><i></i></span>
+            <span><b data-company-name>Soltech Energy</b><small>Roof Designer</small></span>
           </div>
           <span class="privacy-pill">Private & secure</span>
         </header>
 
-        <div class="hero-art" aria-hidden="true">
-          <div class="hero-sun"></div>
-          <div class="hero-roof"><div class="hero-panels"></div></div>
-          <span class="energy-dot dot-one"></span>
-          <span class="energy-dot dot-two"></span>
-        </div>
+        <div class="ambient-glow" aria-hidden="true"></div>
 
         <div class="welcome-copy">
           <p class="eyebrow">Visualise before you install</p>
-          <h1>Your roof.<br /><em>Powered by sunlight.</em></h1>
+          <h1>Let the sun<br /><em>work for you.</em></h1>
           <p class="intro">
-            Point your phone at your roof and design a realistic solar system in minutes.
+            Point your phone at your roof and design a realistic Soltech Energy solar system in minutes.
           </p>
 
           <div class="steps-preview">
@@ -61,7 +74,7 @@
 
       <section id="viewer" class="viewer" hidden>
         <header class="viewer-header">
-          <button id="closeButton" class="round-button" aria-label="Close designer">×</button>
+          <button id="closeButton" class="round-button" aria-label="Back to start">←</button>
           <div class="progress">
             <span class="active"></span><span></span><span></span>
             <small id="stepLabel">Frame your roof</small>
@@ -146,9 +159,9 @@
               <p class="control-note">Fine-tune the array after using touch gestures on the roof.</p>
               <div class="range-grid">
                 <label for="scaleControl">Size <output id="scaleOutput">100%</output></label>
-                <input id="scaleControl" type="range" min="55" max="120" value="100" />
+                <input id="scaleControl" type="range" min="50" max="125" value="100" />
                 <label for="rotateControl">Angle <output id="rotateOutput">0°</output></label>
-                <input id="rotateControl" type="range" min="-35" max="35" value="0" />
+                <input id="rotateControl" type="range" min="-45" max="45" value="0" />
               </div>
               <button id="resetFitButton" class="button subtle compact">Reset position</button>
             </div>
@@ -172,7 +185,7 @@
         <header class="screen-header">
           <button id="backToDesignButton" class="round-button dark" aria-label="Back to designer">←</button>
           <div class="brand compact-brand">
-            <span class="brand-logo"><i></i></span><b data-company-name>SunSight Solar</b>
+            <span class="brand-logo"><img data-company-logo alt="" hidden onerror="this.hidden=true;this.closest('.brand-logo').classList.remove('has-image')" /><i></i></span><b data-company-name>Soltech Energy</b>
           </div>
           <button id="shareButton" class="round-button dark" aria-label="Share design">↗</button>
         </header>
@@ -180,7 +193,7 @@
         <div class="results-scroll">
           <div class="success-mark">✓</div>
           <p class="eyebrow">Your preliminary solar design</p>
-          <h2>This roof has bright potential.</h2>
+          <h2>Turn sunshine into savings.</h2>
           <p class="results-intro">Here is an initial estimate based on your visual design.</p>
 
           <div id="previewCard" class="preview-card">
@@ -211,28 +224,14 @@
             </div>
           </section>
 
-          <button id="quoteButton" class="button primary">Get a free site assessment <b>→</b></button>
+          <button id="quoteButton" class="button whatsapp-cta">
+            <svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor" aria-hidden="true"><path d="M12.01 2C6.55 2 2.13 6.42 2.13 11.88c0 1.87.51 3.62 1.4 5.13L2 22l5.13-1.5a9.83 9.83 0 0 0 4.88 1.3h.01c5.46 0 9.88-4.42 9.88-9.88C21.9 6.42 17.48 2 12.01 2Zm0 18.02a8.1 8.1 0 0 1-4.13-1.13l-.3-.18-3.05.89.9-2.97-.19-.31a8.1 8.1 0 0 1-1.24-4.44c0-4.48 3.65-8.13 8.14-8.13 4.48 0 8.13 3.65 8.13 8.13a8.14 8.14 0 0 1-8.26 8.14Zm4.48-6.1c-.25-.12-1.45-.72-1.68-.8-.22-.08-.39-.12-.55.13-.16.24-.63.8-.77.96-.14.16-.28.18-.53.06-.25-.12-1.04-.38-1.98-1.22-.73-.65-1.23-1.46-1.37-1.7-.14-.25-.02-.38.11-.5.11-.11.25-.28.37-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.32-.75-1.8-.2-.48-.4-.42-.55-.42h-.47c-.16 0-.42.06-.64.3-.22.24-.85.83-.85 2.02s.87 2.35 1 2.51c.12.16 1.7 2.6 4.13 3.64.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.45-.59 1.65-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.47-.28Z"/></svg>
+            <span>Get a free assessment on WhatsApp</span>
+          </button>
           <button id="saveButton" class="button ghost dark-ghost">Save branded preview</button>
-          <p class="microcopy dark-copy">No obligation · Takes less than a minute</p>
+          <p class="microcopy dark-copy">No obligation · Opens WhatsApp with your design details</p>
         </div>
       </section>
-
-      <div id="leadModal" class="modal" hidden>
-        <div class="modal-backdrop" data-close-modal></div>
-        <form id="leadForm" class="modal-card">
-          <button type="button" class="modal-close" data-close-modal aria-label="Close form">×</button>
-          <span class="modal-icon">☀</span>
-          <p class="eyebrow">Free solar assessment</p>
-          <h2>Let’s confirm what your roof can produce.</h2>
-          <p>Share your details and your design will be prepared for a solar advisor.</p>
-          <label>Full name<input id="customerName" name="name" autocomplete="name" required placeholder="Your name" /></label>
-          <label>Phone number<input id="customerPhone" name="phone" type="tel" autocomplete="tel" required placeholder="+91 98765 43210" /></label>
-          <label>City or postcode<input id="customerLocation" name="location" autocomplete="postal-code" required placeholder="Your location" /></label>
-          <label class="consent"><input id="customerConsent" type="checkbox" required /> <span>I agree to be contacted about this solar estimate.</span></label>
-          <button type="submit" class="button whatsapp">Continue on WhatsApp <b>↗</b></button>
-          <p id="whatsappNotice" class="form-note">Your details will be included in a pre-filled WhatsApp message.</p>
-        </form>
-      </div>
 
       <div id="helpModal" class="modal" hidden>
         <div class="modal-backdrop" data-close-help></div>
@@ -261,6 +260,7 @@
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
       <div id="flash" class="flash"></div>
     </main>
+    </div>
     <script src="app.js"></script>
   </body>
 </html>
