@@ -1,45 +1,45 @@
 ﻿# Soltech Energy 3D Solar Visualizer
 
-This is now a small website widget, not a full landing page and not a separate app.
+This is a small website widget, not a full landing page and not a separate app.
 
-## What the user sees
+## Current flow
 
-- A small animated camera button at the bottom-right corner of the website.
+- A small animated camera button sits at the bottom-right corner of the website.
 - On click, the camera view opens directly.
 - Solar panels appear automatically on the camera view.
-- Save/Capture button is available on the camera screen.
-- After saving, a 5-star feedback dialog appears.
-- A WhatsApp consultation button is available with a WhatsApp icon.
+- User can adjust panels:
+  - One finger drag = move panels
+  - Two finger pinch = zoom in / zoom out
+  - Two finger twist = rotate angle
+  - Bottom controls = precise size, angle, and tilt
+  - Reset button = restore default placement
+- Preview tools are easy to access but do not clash with the main controls:
+  - Clean view = hides controls for a clear preview before saving
+  - Show controls = restores all controls
+  - Before / After = compare roof without panels and with panels
+- Only one Save button remains at the top.
+- Only one consultation button remains at the bottom.
+- WhatsApp opens directly with a pre-filled message.
+- Saved image includes Soltech branding and a Free Consultation watermark.
 
-## WhatsApp setup
+## WhatsApp
 
-Open `app.js` and replace:
+The business WhatsApp number is currently set in `app.js` as:
 
 ```js
-whatsapp: "",
+whatsapp: "918302573979",
 ```
 
-with your business WhatsApp number in international format:
+The pre-filled message is:
 
 ```js
-whatsapp: "919876543210",
+Hii, I would like a free consultation regarding solar installation.
 ```
 
-## Embed on your actual website
+## Files to upload together
 
-Keep these files together:
-
+- `index.html`
 - `styles.css`
 - `app.js`
+- `logo-full.png`
 - `logo-mark.png`
-
-Add the visualizer HTML from `index.html` to your page, or keep `index.html` as a reference.
-The important launcher is:
-
-```html
-<button class="camera-launcher" onclick="window.openSolarVisualizer()">...</button>
-```
-
-## Note
-
-This browser version avoids manual marking completely. It creates a smart automatic overlay with more realistic glass-style solar panels. True roof-plane detection like native ARKit/ARCore still needs a native mobile app for full accuracy.

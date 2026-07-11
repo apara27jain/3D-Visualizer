@@ -1,7 +1,7 @@
 ﻿const COMPANY = {
   name: "Soltech Energy",
-  whatsapp: "8302573979",
-  consultationMessage: "Hi, I would like a free consultation regarding solar installation.",
+  whatsapp: "918302573979",
+  consultationMessage: "Hii, I would like a free consultation regarding solar installation.",
   panelCount: 8,
 };
 
@@ -13,7 +13,7 @@ const ctx = canvas.getContext("2d");
 const captureCanvas = $("#captureCanvas");
 const captureCtx = captureCanvas.getContext("2d");
 
-const state = { running: false, demo: false, rating: 0, startedAt: 0, stream: null, animation: null };
+const state = { running: false, demo: false, rating: 0, startedAt: 0, stream: null, animation: null, pointers: new Map(), gesture: null, panel: { x: 0, y: 0, scale: 1, rotation: 0, tilt: 0 }, cleanView: false, beforeMode: false };
 
 function resizeCanvas() {
   const ratio = Math.max(1, window.devicePixelRatio || 1);
@@ -41,12 +41,18 @@ function showToast(message) {
 
 function openSolarVisualizer() {
   visualizer.hidden = false;
+  state.cleanView = false;
+  state.beforeMode = false;
+  syncViewTools();
   document.body.style.overflow = "hidden";
   resizeCanvas();
   startCamera();
 }
 
 function closeSolarVisualizer() {
+  state.cleanView = false;
+  state.beforeMode = false;
+  syncViewTools();
   stopCamera();
   visualizer.hidden = true;
   document.body.style.overflow = "";
@@ -96,19 +102,34 @@ function stopCamera() {
   ctx.clearRect(0, 0, w, h);
 }
 
-function roofPolygon(time = performance.now()) {
+function transformPoint(point, center) {
+  const angle = state.panel.rotation * Math.PI / 180;
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  const tilt = state.panel.tilt / 100;
+  let x = (point.x - center.x) * state.panel.scale;
+  let y = (point.y - center.y) * state.panel.scale;
+  x += y * tilt;
+  return {
+    x: center.x + x * cos - y * sin + state.panel.x,
+    y: center.y + x * sin + y * cos + state.panel.y,
+  };
+}
+
+function roofPolygon() {
   const { w, h } = size();
-  const drift = Math.sin(time / 1700) * 5;
-  const top = h * 0.34 + drift;
-  const bottom = h * 0.62 + drift * 0.35;
+  const top = h * 0.34;
+  const bottom = h * 0.62;
   const left = w * 0.14;
   const right = w * 0.88;
-  return [
+  const base = [
     { x: left + w * 0.08, y: top + h * 0.035 },
     { x: right - w * 0.04, y: top - h * 0.035 },
     { x: right, y: bottom + h * 0.045 },
     { x: left, y: bottom },
   ];
+  const center = base.reduce((sum, point) => ({ x: sum.x + point.x / 4, y: sum.y + point.y / 4 }), { x: 0, y: 0 });
+  return base.map((point) => transformPoint(point, center));
 }
 
 function bilerp(poly, u, v) {
@@ -250,13 +271,15 @@ function drawOverlay() {
   const poly = roofPolygon();
   const elapsed = performance.now() - state.startedAt;
   const alpha = Math.min(1, elapsed / 900);
-  drawPolygon(ctx, poly, "rgba(255,194,10,.08)", "rgba(255,194,10,.58)", 1.2);
-  panelCells().forEach((cell, index) => drawPanel(ctx, poly, cell, alpha * Math.min(1, Math.max(0, (elapsed - index * 55) / 420))));
+  drawPolygon(ctx, poly, state.beforeMode ? "rgba(31,63,135,.05)" : "rgba(255,194,10,.08)", state.beforeMode ? "rgba(31,63,135,.28)" : "rgba(255,194,10,.58)", 1.2);
+  if (!state.beforeMode) {
+    panelCells().forEach((cell, index) => drawPanel(ctx, poly, cell, alpha * Math.min(1, Math.max(0, (elapsed - index * 55) / 420))));
+  }
   ctx.save();
   ctx.fillStyle = "rgba(255,255,255,.9)";
   ctx.font = "800 12px system-ui";
   ctx.textAlign = "center";
-  ctx.fillText("Automatic solar preview", w / 2, poly[0].y - 18);
+  ctx.fillText(state.beforeMode ? "Before view: roof without panels" : "Automatic solar preview", w / 2, poly[0].y - 18);
   ctx.restore();
 }
 
@@ -293,20 +316,9 @@ function capturePreview() {
   captureCtx.save();
   captureCtx.scale(scaleX, scaleY);
   const poly = roofPolygon();
-  panelCells().forEach((cell) => drawPanel(captureCtx, poly, cell, 1));
+  if (!state.beforeMode) panelCells().forEach((cell) => drawPanel(captureCtx, poly, cell, 1));
   captureCtx.restore();
-  const band = height * .16;
-  const shade = captureCtx.createLinearGradient(0, height - band, 0, height);
-  shade.addColorStop(0, "rgba(7,21,45,0)");
-  shade.addColorStop(.4, "rgba(7,21,45,.88)");
-  captureCtx.fillStyle = shade;
-  captureCtx.fillRect(0, height - band, width, band);
-  captureCtx.fillStyle = "#ffc20a";
-  captureCtx.font = `900 ${Math.round(width * .037)}px system-ui`;
-  captureCtx.fillText(COMPANY.name, width * .05, height - band * .38);
-  captureCtx.fillStyle = "#ffffff";
-  captureCtx.font = `700 ${Math.round(width * .026)}px system-ui`;
-  captureCtx.fillText(`${COMPANY.panelCount} panels 3D solar preview`, width * .05, height - band * .16);
+  drawBrandedWatermark(captureCtx, width, height);
   $("#flash").classList.remove("active");
   requestAnimationFrame(() => $("#flash").classList.add("active"));
   captureCanvas.toBlob((blob) => {
@@ -333,6 +345,160 @@ function submitFeedback() {
   showToast("Thank you for your feedback.");
 }
 
+function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
+function pointDistance(a, b) { return Math.hypot(b.x - a.x, b.y - a.y); }
+function pointAngle(a, b) { return Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI; }
+
+function syncAdjustControls() {
+  const scale = $("#scaleControl");
+  const rotation = $("#rotationControl");
+  const tilt = $("#tiltControl");
+  if (scale) scale.value = Math.round(state.panel.scale * 100);
+  if (rotation) rotation.value = Math.round(state.panel.rotation);
+  if (tilt) tilt.value = Math.round(state.panel.tilt);
+}
+
+function resetPanelAdjustments() {
+  state.panel = { x: 0, y: 0, scale: 1, rotation: 0, tilt: 0 };
+  syncAdjustControls();
+  showToast("Panel position reset.");
+}
+
+function panelPointerDown(event) {
+  if (!state.running) return;
+  event.preventDefault();
+  canvas.setPointerCapture?.(event.pointerId);
+  state.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+  if (event.detail === 2) {
+    resetPanelAdjustments();
+    return;
+  }
+
+  if (state.pointers.size === 1) {
+    state.gesture = { type: "move", start: { x: event.clientX, y: event.clientY }, panel: { ...state.panel } };
+  } else if (state.pointers.size === 2) {
+    const [a, b] = [...state.pointers.values()];
+    state.gesture = { type: "pinch", distance: pointDistance(a, b), angle: pointAngle(a, b), panel: { ...state.panel } };
+  }
+}
+
+function panelPointerMove(event) {
+  if (!state.pointers.has(event.pointerId)) return;
+  event.preventDefault();
+  state.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+  if (state.pointers.size === 1 && state.gesture?.type === "move") {
+    state.panel.x = state.gesture.panel.x + event.clientX - state.gesture.start.x;
+    state.panel.y = state.gesture.panel.y + event.clientY - state.gesture.start.y;
+  } else if (state.pointers.size >= 2) {
+    const [a, b] = [...state.pointers.values()];
+    if (state.gesture?.type !== "pinch") {
+      state.gesture = { type: "pinch", distance: pointDistance(a, b), angle: pointAngle(a, b), panel: { ...state.panel } };
+    }
+    const zoom = pointDistance(a, b) / Math.max(1, state.gesture.distance);
+    state.panel.scale = clamp(state.gesture.panel.scale * zoom, .65, 1.65);
+    state.panel.rotation = clamp(state.gesture.panel.rotation + pointAngle(a, b) - state.gesture.angle, -70, 70);
+  }
+  syncAdjustControls();
+}
+
+function panelPointerUp(event) {
+  state.pointers.delete(event.pointerId);
+  if (state.pointers.size === 0) state.gesture = null;
+}
+
+function bindAdjustControls() {
+  $("#scaleControl")?.addEventListener("input", (event) => { state.panel.scale = clamp(Number(event.target.value) / 100, .65, 1.65); });
+  $("#rotationControl")?.addEventListener("input", (event) => { state.panel.rotation = clamp(Number(event.target.value), -70, 70); });
+  $("#tiltControl")?.addEventListener("input", (event) => { state.panel.tilt = clamp(Number(event.target.value), -35, 35); });
+  $("#resetAdjustButton")?.addEventListener("click", resetPanelAdjustments);
+}
+function syncViewTools() {
+  const stage = document.querySelector(".visualizer-stage");
+  stage?.classList.toggle("clean-ui", state.cleanView);
+  stage?.classList.toggle("before-mode", state.beforeMode);
+  const clean = $("#cleanViewButton");
+  const before = $("#beforeAfterButton");
+  const show = $("#showControlsButton");
+  if (clean) {
+    clean.setAttribute("aria-pressed", String(state.cleanView));
+    clean.textContent = state.cleanView ? "Clean view on" : "Clean view";
+  }
+  if (before) {
+    before.setAttribute("aria-pressed", String(state.beforeMode));
+    before.textContent = state.beforeMode ? "After view" : "Before / After";
+  }
+  if (show) show.hidden = !state.cleanView;
+}
+
+function toggleCleanView() {
+  state.cleanView = !state.cleanView;
+  syncViewTools();
+  showToast(state.cleanView ? "Clean view on. Tap Show controls to edit." : "Controls restored.");
+}
+
+function toggleBeforeAfter() {
+  state.beforeMode = !state.beforeMode;
+  syncViewTools();
+  showToast(state.beforeMode ? "Before view: panels hidden." : "After view: panels visible.");
+}
+
+function drawBrandedWatermark(context, width, height) {
+  const pad = width * .045;
+  const cardHeight = Math.max(118, height * .145);
+  const y = height - cardHeight - pad;
+  context.save();
+  context.shadowColor = "rgba(7,21,45,.22)";
+  context.shadowBlur = width * .025;
+  context.shadowOffsetY = width * .012;
+  context.fillStyle = "rgba(255,255,255,.94)";
+  roundRect(context, pad, y, width - pad * 2, cardHeight, width * .035);
+  context.fill();
+  context.shadowColor = "transparent";
+
+  const logo = document.querySelector(".brand-logo-large img");
+  const logoW = Math.min(width * .28, 220);
+  const logoH = Math.min(cardHeight * .48, 62);
+  if (logo?.complete) {
+    context.drawImage(logo, pad * 1.45, y + cardHeight * .18, logoW, logoH);
+  } else {
+    context.fillStyle = "#1f3f87";
+    context.font = `900 ${Math.round(width * .042)}px system-ui`;
+    context.fillText(COMPANY.name, pad * 1.45, y + cardHeight * .42);
+  }
+
+  context.fillStyle = "#07152d";
+  context.font = `900 ${Math.round(width * .032)}px system-ui`;
+  context.fillText(state.beforeMode ? "Roof preview without panels" : `${COMPANY.panelCount} panels solar preview`, pad * 1.45, y + cardHeight * .72);
+  context.fillStyle = "#12a654";
+  context.font = `800 ${Math.round(width * .026)}px system-ui`;
+  context.fillText("Get Free Consultation • +91 83025 73979", pad * 1.45, y + cardHeight * .9);
+
+  const pillW = width * .29;
+  const pillH = cardHeight * .32;
+  const pillX = width - pad * 1.45 - pillW;
+  const pillY = y + cardHeight * .23;
+  context.fillStyle = "#12a654";
+  roundRect(context, pillX, pillY, pillW, pillH, pillH / 2);
+  context.fill();
+  context.fillStyle = "#fff";
+  context.textAlign = "center";
+  context.font = `900 ${Math.round(width * .024)}px system-ui`;
+  context.fillText("FREE CONSULT", pillX + pillW / 2, pillY + pillH * .64);
+  context.restore();
+}
+
+function roundRect(context, x, y, width, height, radius) {
+  const r = Math.min(radius, width / 2, height / 2);
+  context.beginPath();
+  context.moveTo(x + r, y);
+  context.arcTo(x + width, y, x + width, y + height, r);
+  context.arcTo(x + width, y + height, x, y + height, r);
+  context.arcTo(x, y + height, x, y, r);
+  context.arcTo(x, y, x + width, y, r);
+  context.closePath();
+}
 function openWhatsApp() {
   const message = COMPANY.consultationMessage;
   if (!COMPANY.whatsapp) { showToast("Add your WhatsApp number inside app.js first."); return; }
@@ -345,12 +511,27 @@ $("#whatsAppButton").addEventListener("click", openWhatsApp);
 $("#retryButton").addEventListener("click", startCamera);
 $("#demoButton").addEventListener("click", startDemo);
 $("#submitFeedbackButton").addEventListener("click", submitFeedback);
+$("#cleanViewButton")?.addEventListener("click", toggleCleanView);
+$("#showControlsButton")?.addEventListener("click", toggleCleanView);
+$("#beforeAfterButton")?.addEventListener("click", toggleBeforeAfter);
+canvas.addEventListener("pointerdown", panelPointerDown);
+canvas.addEventListener("pointermove", panelPointerMove);
+canvas.addEventListener("pointerup", panelPointerUp);
+canvas.addEventListener("pointercancel", panelPointerUp);
+bindAdjustControls();
 document.querySelectorAll("[data-rating]").forEach((button) => button.addEventListener("click", () => setRating(Number(button.dataset.rating))));
 document.querySelectorAll("[data-close-feedback]").forEach((button) => button.addEventListener("click", () => ($("#feedbackDialog").hidden = true)));
 window.addEventListener("resize", resizeCanvas);
 window.openSolarVisualizer = openSolarVisualizer;
 window.closeSolarVisualizer = closeSolarVisualizer;
 resizeCanvas();
+
+
+
+
+
+
+
 
 
 

@@ -27,8 +27,19 @@
           <button id="captureButton" class="capture-small" type="button">Save</button>
         </header>
 
-        <div id="scanCard" class="scan-card"><span class="scan-dot"></span><div><b>Point camera at the roof</b><small>Solar panels appear automatically.</small></div></div>
+        <div id="scanCard" class="scan-card"><span class="scan-dot"></span><div><b>Point camera at the roof</b><small>Drag panels with one finger. Pinch to zoom and rotate.</small></div></div>
         <div class="focus-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <section class="view-tools" aria-label="Preview tools">
+          <button id="cleanViewButton" class="tool-pill" type="button" aria-pressed="false">Clean view</button>
+          <button id="beforeAfterButton" class="tool-pill" type="button" aria-pressed="false">Before / After</button>
+        </section>
+        <button id="showControlsButton" class="show-controls-pill" type="button" hidden>Show controls</button>
+        <section class="adjust-panel" aria-label="Solar panel adjustment controls">
+          <div class="adjust-title"><span>Adjust panels</span><button id="resetAdjustButton" type="button">Reset</button></div>
+          <label>Size <input id="scaleControl" type="range" min="65" max="165" value="100" /></label>
+          <label>Angle <input id="rotationControl" type="range" min="-70" max="70" value="0" /></label>
+          <label>Tilt <input id="tiltControl" type="range" min="-35" max="35" value="0" /></label>
+        </section>
 
         <footer class="ar-footer">
           <button id="whatsAppButton" class="whatsapp-button" type="button"><span class="wa-icon" aria-hidden="true"></span>Get Free Consultation</button>
@@ -42,4 +53,7 @@
     <script src="app.js"></script>
   </body>
 </html>
+
+
+
 
