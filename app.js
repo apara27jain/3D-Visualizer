@@ -445,50 +445,52 @@ function toggleBeforeAfter() {
 }
 
 function drawBrandedWatermark(context, width, height) {
-  const pad = width * .045;
-  const cardHeight = Math.max(118, height * .145);
-  const y = height - cardHeight - pad;
+  const pad = Math.max(18, width * .035);
+  const stripHeight = Math.max(58, Math.min(92, height * .065));
+  const y = height - stripHeight - pad;
   context.save();
-  context.shadowColor = "rgba(7,21,45,.22)";
-  context.shadowBlur = width * .025;
-  context.shadowOffsetY = width * .012;
-  context.fillStyle = "rgba(255,255,255,.94)";
-  roundRect(context, pad, y, width - pad * 2, cardHeight, width * .035);
+
+  context.shadowColor = "rgba(7,21,45,.18)";
+  context.shadowBlur = Math.max(14, width * .018);
+  context.shadowOffsetY = Math.max(5, width * .006);
+  context.fillStyle = "rgba(255,255,255,.9)";
+  roundRect(context, pad, y, width - pad * 2, stripHeight, stripHeight * .32);
   context.fill();
   context.shadowColor = "transparent";
 
   const logo = document.querySelector(".brand-logo-large img");
-  const logoW = Math.min(width * .28, 220);
-  const logoH = Math.min(cardHeight * .48, 62);
+  const logoW = Math.min(width * .2, 170);
+  const logoH = stripHeight * .5;
+  const logoX = pad * 1.5;
+  const logoY = y + stripHeight * .18;
   if (logo?.complete) {
-    context.drawImage(logo, pad * 1.45, y + cardHeight * .18, logoW, logoH);
+    context.drawImage(logo, logoX, logoY, logoW, logoH);
   } else {
     context.fillStyle = "#1f3f87";
-    context.font = `900 ${Math.round(width * .042)}px system-ui`;
-    context.fillText(COMPANY.name, pad * 1.45, y + cardHeight * .42);
+    context.font = `900 ${Math.round(width * .027)}px system-ui`;
+    context.fillText(COMPANY.name, logoX, y + stripHeight * .48);
   }
 
+  const textX = logoX + logoW + width * .025;
+  context.textAlign = "left";
   context.fillStyle = "#07152d";
-  context.font = `900 ${Math.round(width * .032)}px system-ui`;
-  context.fillText(state.beforeMode ? "Roof preview without panels" : `${COMPANY.panelCount} panels solar preview`, pad * 1.45, y + cardHeight * .72);
+  context.font = `900 ${Math.round(width * .025)}px system-ui`;
+  context.fillText(state.beforeMode ? "Roof before solar" : `${COMPANY.panelCount} panel solar preview`, textX, y + stripHeight * .43);
   context.fillStyle = "#12a654";
-  context.font = `800 ${Math.round(width * .026)}px system-ui`;
-  context.fillText("Get Free Consultation • +91 83025 73979", pad * 1.45, y + cardHeight * .9);
+  context.font = `800 ${Math.round(width * .02)}px system-ui`;
+  context.fillText("Free consultation: +91 83025 73979", textX, y + stripHeight * .72);
 
-  const pillW = width * .29;
-  const pillH = cardHeight * .32;
-  const pillX = width - pad * 1.45 - pillW;
-  const pillY = y + cardHeight * .23;
+  const dotSize = stripHeight * .22;
   context.fillStyle = "#12a654";
-  roundRect(context, pillX, pillY, pillW, pillH, pillH / 2);
+  context.beginPath();
+  context.arc(width - pad * 1.65, y + stripHeight * .5, dotSize, 0, Math.PI * 2);
   context.fill();
   context.fillStyle = "#fff";
+  context.font = `900 ${Math.round(dotSize * 1.15)}px system-ui`;
   context.textAlign = "center";
-  context.font = `900 ${Math.round(width * .024)}px system-ui`;
-  context.fillText("FREE CONSULT", pillX + pillW / 2, pillY + pillH * .64);
+  context.fillText("✓", width - pad * 1.65, y + stripHeight * .61);
   context.restore();
 }
-
 function roundRect(context, x, y, width, height, radius) {
   const r = Math.min(radius, width / 2, height / 2);
   context.beginPath();
@@ -525,6 +527,7 @@ window.addEventListener("resize", resizeCanvas);
 window.openSolarVisualizer = openSolarVisualizer;
 window.closeSolarVisualizer = closeSolarVisualizer;
 resizeCanvas();
+
 
 
 
