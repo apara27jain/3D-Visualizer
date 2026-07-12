@@ -54,3 +54,42 @@ button{cursor:pointer}
   .adjust-panel{left:54px!important;right:54px!important;bottom:max(10px,env(safe-area-inset-bottom))!important}
   .view-tools{left:16px!important;right:16px!important;bottom:calc(max(10px,env(safe-area-inset-bottom)) + 82px)!important}
 }
+
+/* Fix tool buttons overlapping with adjustment panel */
+.view-tools{
+  left:18px!important;
+  right:18px!important;
+  bottom:calc(max(12px,env(safe-area-inset-bottom)) + 172px)!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:6px!important;
+  z-index:9!important;
+}
+.tool-pill{
+  min-height:30px!important;
+  padding:0 8px!important;
+  border-radius:14px!important;
+  font-size:.58rem!important;
+  box-shadow:0 6px 18px rgba(31,63,135,.10)!important;
+}
+.adjust-panel{
+  left:18px!important;
+  right:18px!important;
+  bottom:calc(max(10px,env(safe-area-inset-bottom)) + 54px)!important;
+  padding:7px 9px!important;
+  border-radius:16px!important;
+}
+.adjust-title{font-size:.66rem!important;margin-bottom:3px!important}
+.adjust-title button{padding:3px 7px!important;font-size:.54rem!important}
+.adjust-panel label{grid-template-columns:34px 1fr!important;margin:1px 0!important;font-size:.54rem!important;gap:6px!important}
+.adjust-panel input[type="range"]{height:16px!important}
+.whatsapp-button{min-height:42px!important;font-size:.78rem!important;border-radius:14px!important}
+.ar-footer{padding:8px 16px max(8px,env(safe-area-inset-bottom))!important}
+@media (max-height:760px){
+  .view-tools{bottom:calc(max(10px,env(safe-area-inset-bottom)) + 156px)!important}
+  .tool-pill{min-height:28px!important;font-size:.54rem!important}
+  .adjust-panel{bottom:calc(max(8px,env(safe-area-inset-bottom)) + 50px)!important;padding:6px 8px!important}
+}
+@media (max-height:690px){
+  .view-tools{bottom:calc(max(8px,env(safe-area-inset-bottom)) + 142px)!important}
+  .adjust-panel{bottom:calc(max(8px,env(safe-area-inset-bottom)) + 46px)!important}
+}
