@@ -24,16 +24,16 @@
         <header class="ar-topbar">
           <button id="closeButton" class="icon-button" type="button" aria-label="Close visualizer">×</button>
           <div class="brand-logo-large"><img src="logo-full.png" alt="Soltech Energy" /></div>
-          <button id="captureButton" class="capture-small" type="button">Save</button>
+          <button id="captureButton" class="capture-small" type="button">Save & View</button>
         </header>
 
         <div id="scanCard" class="scan-card"><span class="scan-dot"></span><div><b>Point camera at the roof</b><small>Drag panels with one finger. Pinch to zoom and rotate.</small></div></div>
         <div class="focus-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
         <section class="view-tools" aria-label="Preview tools">
-          <button id="cleanViewButton" class="tool-pill" type="button" aria-pressed="false">Clean view</button>
+          <button id="cleanViewButton" class="tool-pill" type="button" aria-pressed="false">Hide Panel</button>
           <button id="beforeAfterButton" class="tool-pill" type="button" aria-pressed="false">Before / After</button>
         </section>
-        <button id="showControlsButton" class="show-controls-pill" type="button" hidden>Show controls</button>
+        <button id="showControlsButton" class="show-controls-pill" type="button" hidden>Show Panel</button>
         <section class="adjust-panel" aria-label="Solar panel adjustment controls">
           <div class="adjust-title"><span>Adjust panels</span><button id="resetAdjustButton" type="button">Reset</button></div>
           <label>Size <input id="scaleControl" type="range" min="65" max="165" value="100" /></label>
