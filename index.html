@@ -1,59 +1,215 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#f8fbff" />
-    <meta name="description" content="Soltech Energy embeddable 3D solar camera visualizer." />
-    <title>Soltech Energy 3D Solar Visualizer</title>
+    <meta name="theme-color" content="#06090f" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="description" content="Point your camera at your roof and instantly preview a Soltech Energy solar system." />
+    <title>Soltech Energy — 3D Solar Visualizer</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <button id="visualizerLauncher" class="camera-launcher" type="button" onclick="window.openSolarVisualizer()" aria-label="Try 3D solar visualizer">
-      <span class="camera-pulse"></span>
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.75 7.5h2.64l1.15-1.82A1.45 1.45 0 0 1 9.77 5h4.46c.5 0 .96.26 1.23.68l1.15 1.82h2.64c.97 0 1.75.78 1.75 1.75v8A1.75 1.75 0 0 1 19.25 19H4.75A1.75 1.75 0 0 1 3 17.25v-8c0-.97.78-1.75 1.75-1.75Zm7.25 9.2a3.95 3.95 0 1 0 0-7.9 3.95 3.95 0 0 0 0 7.9Zm0-1.7a2.25 2.25 0 1 1 0-4.5 2.25 2.25 0 0 1 0 4.5Zm5.35-5.03a.88.88 0 1 0 0-1.76.88.88 0 0 0 0 1.76Z"/></svg>
-      <span class="launcher-copy">Camera</span>
+    <!-- TEMPORARY: for standalone testing only. Remove this button when embedding on the real site —
+         call window.openSolarVisualizer() from your own "Try 3D Visualizer" button instead. -->
+    <button
+      id="testLauncherButton"
+      class="sv-launcher"
+      onclick="window.openSolarVisualizer()"
+      aria-label="Try 3D Visualizer"
+    >
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 8.5C4 7.67157 4.67157 7 5.5 7H7.5L8.7 5.2C8.98 4.78 9.45 4.5 9.97 4.5H14.03C14.55 4.5 15.02 4.78 15.3 5.2L16.5 7H18.5C19.3284 7 20 7.67157 20 8.5V17.5C20 18.3284 19.3284 19 18.5 19H5.5C4.67157 19 4 18.3284 4 17.5V8.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        <circle cx="12" cy="13" r="3.4" stroke="currentColor" stroke-width="1.6"/>
+        <circle cx="16.6" cy="9.6" r=".9" fill="currentColor"/>
+      </svg>
+      <span>Try 3D Visualizer</span>
     </button>
 
-    <div id="solarVisualizer" class="visualizer" hidden>
-      <div class="visualizer-stage">
-        <video id="camera" autoplay muted playsinline></video>
-        <canvas id="solarCanvas" aria-label="3D solar roof preview"></canvas>
-        <canvas id="captureCanvas" hidden></canvas>
-
-        <header class="ar-topbar">
-          <button id="closeButton" class="icon-button" type="button" aria-label="Close visualizer">×</button>
-          <div class="brand-logo-large"><img src="logo-full.png" alt="Soltech Energy" /></div>
-          <button id="captureButton" class="capture-small" type="button">Save & View</button>
-        </header>
-
-        <div id="scanCard" class="scan-card"><span class="scan-dot"></span><div><b>Point camera at the roof</b><small>Drag panels with one finger. Pinch to zoom and rotate.</small></div></div>
-        <div class="focus-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-        <section class="view-tools" aria-label="Preview tools">
-          <button id="cleanViewButton" class="tool-pill" type="button" aria-pressed="false">Hide Panel</button>
-          <button id="beforeAfterButton" class="tool-pill" type="button" aria-pressed="false">Before / After</button>
-        </section>
-        <button id="showControlsButton" class="show-controls-pill" type="button" hidden>Show Panel</button>
-        <section class="adjust-panel" aria-label="Solar panel adjustment controls">
-          <div class="adjust-title"><span>Adjust panels</span><button id="resetAdjustButton" type="button">Reset</button></div>
-          <label>Size <input id="scaleControl" type="range" min="65" max="165" value="100" /></label>
-          <label>Angle <input id="rotationControl" type="range" min="-70" max="70" value="0" /></label>
-          <label>Tilt <input id="tiltControl" type="range" min="-35" max="35" value="0" /></label>
-        </section>
-
-        <footer class="ar-footer">
-          <button id="whatsAppButton" class="whatsapp-button" type="button"><span class="wa-icon" aria-hidden="true"></span>Get Free Consultation</button>
-        </footer>
-
-        <section id="cameraError" class="state-panel" hidden><img src="logo-mark.png" alt="" /><h2>Camera permission needed</h2><p>Please allow camera access in Safari or Chrome, then try again.</p><button id="retryButton" class="primary-button" type="button">Open camera again</button><button id="demoButton" class="ghost-button" type="button">Preview without camera</button></section>
-        <section id="feedbackDialog" class="dialog" hidden><div class="dialog-card"><button class="dialog-close" type="button" data-close-feedback>×</button><p class="eyebrow">Saved successfully</p><h2>How was your visualizer experience?</h2><div id="ratingStars" class="stars" aria-label="Rate experience"><button type="button" data-rating="1">★</button><button type="button" data-rating="2">★</button><button type="button" data-rating="3">★</button><button type="button" data-rating="4">★</button><button type="button" data-rating="5">★</button></div><textarea id="feedbackComment" rows="3" placeholder="Optional comment"></textarea><button id="submitFeedbackButton" class="primary-button" type="button">Submit feedback</button></div></section>
-        <div id="toast" class="toast" role="status" aria-live="polite"></div><div id="flash" class="flash"></div>
+    <div id="solarVisualizerOverlay" class="sv-overlay" hidden>
+    <main class="app">
+      <button id="exitVisualizerButton" class="sv-exit" aria-label="Close visualizer">×</button>
+      <video id="camera" autoplay muted playsinline></video>
+      <div id="demoScene" class="demo-scene" hidden>
+        <div class="demo-sky"></div>
+        <div class="demo-roof"></div>
+        <div class="demo-wall"></div>
       </div>
+      <canvas id="solarCanvas" aria-label="Solar panels overlaid on your roof"></canvas>
+      <canvas id="captureCanvas" hidden></canvas>
+
+      <section id="viewer" class="viewer" hidden>
+        <div id="gestureHint" class="gesture-hint" hidden>
+          <span>☝</span> Drag to move · Pinch to resize · Twist to rotate
+        </div>
+
+        <nav class="top-navbar">
+          <button id="captureButton" class="nav-pill nav-pill-accent" aria-label="Save this view">📷 <span>Save</span></button>
+          <button id="undoButton" class="nav-pill" aria-label="Undo last change" disabled>↶ <span>Undo</span></button>
+          <button id="lockButton" class="nav-pill" aria-pressed="false">◇ <span>Lock</span></button>
+        </nav>
+
+        <section id="designSheet" class="design-sheet sheet-peek">
+          <!-- drag handle — tap or drag up to expand, drag down to collapse -->
+          <button id="sheetHandle" class="sheet-handle" aria-label="Expand or collapse controls"><span></span></button>
+
+          <!-- always visible in peek state -->
+          <div class="sheet-peek-row">
+            <div class="sheet-brand">
+              <span class="brand-logo compact-logo" aria-hidden="true"><img data-company-logo alt="" hidden onerror="this.hidden=true;this.closest('.brand-logo').classList.remove('has-image')" /><i></i></span>
+              <div><b data-company-name>Soltech Energy</b><small id="layoutSummary">8 panels · Landscape</small></div>
+            </div>
+            <button id="estimateButton" class="sheet-peek-badge">View estimate ↗</button>
+          </div>
+
+          <!-- hidden in peek state, revealed when expanded -->
+          <div class="sheet-expandable">
+            <div class="control-panel">
+              <div class="control-row">
+                <label>Number of panels</label>
+                <div class="stepper">
+                  <button id="removePanelButton" aria-label="Remove panels">−</button>
+                  <strong id="panelCount">8</strong>
+                  <button id="addPanelButton" aria-label="Add panels">+</button>
+                </div>
+              </div>
+              <div class="control-row">
+                <label>Panel direction</label>
+                <div class="segmented">
+                  <button id="landscapeButton" class="active">Landscape</button>
+                  <button id="portraitButton">Portrait</button>
+                </div>
+              </div>
+              <div class="control-row range-row">
+                <label for="spacingControl">Spacing <output id="spacingOutput">6 cm</output></label>
+                <input id="spacingControl" type="range" min="2" max="18" value="6" />
+              </div>
+              <div class="control-row range-row">
+                <label for="scaleControl">Panel size <output id="scaleOutput">100%</output></label>
+                <input id="scaleControl" type="range" min="50" max="125" value="100" />
+              </div>
+              <div class="control-row range-row">
+                <label for="rotateControl">Rotate <output id="rotateOutput">0°</output></label>
+                <input id="rotateControl" type="range" min="-45" max="45" value="0" />
+              </div>
+              <div class="control-row range-row">
+                <label for="tiltControl">Tilt <output id="tiltOutput">0°</output></label>
+                <input id="tiltControl" type="range" min="-30" max="30" value="0" />
+              </div>
+              <button id="resetFitButton" class="button subtle compact">Reset position</button>
+            </div>
+
+            <button id="quoteButton" class="button whatsapp-cta">
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor" aria-hidden="true"><path d="M12.01 2C6.55 2 2.13 6.42 2.13 11.88c0 1.87.51 3.62 1.4 5.13L2 22l5.13-1.5a9.83 9.83 0 0 0 4.88 1.3h.01c5.46 0 9.88-4.42 9.88-9.88C21.9 6.42 17.48 2 12.01 2Zm0 18.02a8.1 8.1 0 0 1-4.13-1.13l-.3-.18-3.05.89.9-2.97-.19-.31a8.1 8.1 0 0 1-1.24-4.44c0-4.48 3.65-8.13 8.14-8.13 4.48 0 8.13 3.65 8.13 8.13a8.14 8.14 0 0 1-8.26 8.14Zm4.48-6.1c-.25-.12-1.45-.72-1.68-.8-.22-.08-.39-.12-.55.13-.16.24-.63.8-.77.96-.14.16-.28.18-.53.06-.25-.12-1.04-.38-1.98-1.22-.73-.65-1.23-1.46-1.37-1.7-.14-.25-.02-.38.11-.5.11-.11.25-.28.37-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.32-.75-1.8-.2-.48-.4-.42-.55-.42h-.47c-.16 0-.42.06-.64.3-.22.24-.85.83-.85 2.02s.87 2.35 1 2.51c.12.16 1.7 2.6 4.13 3.64.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.45-.59 1.65-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.47-.28Z"/></svg>
+              <span>Get a free consultation on WhatsApp</span>
+            </button>
+          </div>
+        </section>
+      </section>
+
+      <section id="resultReview" class="result-review" hidden>
+        <button id="closeReviewButton" class="round-button" aria-label="Back to camera">←</button>
+        <p class="review-title">Slide to compare</p>
+        <div id="compareFrame" class="compare-frame">
+          <img id="compareBefore" class="compare-img" alt="Roof before solar panels" />
+          <div id="compareAfterWrap" class="compare-after-wrap">
+            <img id="compareAfter" class="compare-img" alt="Roof with solar panels" />
+          </div>
+          <div id="compareHandle" class="compare-handle" role="slider" aria-label="Before and after divider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabindex="0">
+            <span class="compare-grip">↔</span>
+          </div>
+          <span class="compare-label compare-label-before">Before</span>
+          <span class="compare-label compare-label-after">After</span>
+        </div>
+        <button id="confirmSaveButton" class="button whatsapp-cta review-save">
+          <span>Save this image</span>
+        </button>
+      </section>
+
+      <div id="estimateModal" class="modal" hidden>
+        <div class="modal-backdrop" data-close-estimate></div>
+        <div class="modal-card estimate-card">
+          <button class="modal-close" data-close-estimate aria-label="Close">×</button>
+          <div class="estimate-header">
+            <span class="estimate-icon">☀</span>
+            <div>
+              <p class="eyebrow">Your solar estimate</p>
+              <h2 id="estimatePanelLine">8 panels · 3.6 kW system</h2>
+            </div>
+          </div>
+          <div class="estimate-grid">
+            <div class="estimate-stat">
+              <span class="estimate-stat-icon">⚡</span>
+              <small>Energy per year</small>
+              <b id="estimateEnergy">5,220 kWh</b>
+            </div>
+            <div class="estimate-stat">
+              <span class="estimate-stat-icon">₹</span>
+              <small>Savings per year</small>
+              <b id="estimateSavings">₹41,760</b>
+            </div>
+            <div class="estimate-stat">
+              <span class="estimate-stat-icon">📈</span>
+              <small>25-year savings</small>
+              <b id="estimateLifetime">₹10.4 lakh</b>
+            </div>
+            <div class="estimate-stat">
+              <span class="estimate-stat-icon">♻</span>
+              <small>CO₂ avoided / year</small>
+              <b id="estimateCo2">3.7 tonnes</b>
+            </div>
+            <div class="estimate-stat">
+              <span class="estimate-stat-icon">🏷</span>
+              <small>Estimated cost</small>
+              <b id="estimateCost">₹2.34–₹2.70 lakh</b>
+            </div>
+            <div class="estimate-stat">
+              <span class="estimate-stat-icon">⏱</span>
+              <small>Payback period</small>
+              <b id="estimatePayback">~6 years</b>
+            </div>
+          </div>
+          <p class="estimate-note">Based on ₹8/kWh tariff, 1,450 kWh/kW/year yield and 450 W panels. A site survey will refine this estimate.</p>
+          <button id="estimateWhatsappButton" class="button whatsapp-cta">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12.01 2C6.55 2 2.13 6.42 2.13 11.88c0 1.87.51 3.62 1.4 5.13L2 22l5.13-1.5a9.83 9.83 0 0 0 4.88 1.3h.01c5.46 0 9.88-4.42 9.88-9.88C21.9 6.42 17.48 2 12.01 2Z"/></svg>
+            <span>Get a free consultation</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="ratingModal" class="modal" hidden>
+        <div class="modal-backdrop" data-close-rating></div>
+        <div class="modal-card rating-card">
+          <span class="modal-icon success">✓</span>
+          <p class="eyebrow">Image saved</p>
+          <h2>How was your experience?</h2>
+          <p>Your feedback helps us improve the visualizer.</p>
+          <div id="starRow" class="star-row" role="radiogroup" aria-label="Rate your experience">
+            <button type="button" class="star" data-star="1" aria-label="1 star">★</button>
+            <button type="button" class="star" data-star="2" aria-label="2 stars">★</button>
+            <button type="button" class="star" data-star="3" aria-label="3 stars">★</button>
+            <button type="button" class="star" data-star="4" aria-label="4 stars">★</button>
+            <button type="button" class="star" data-star="5" aria-label="5 stars">★</button>
+          </div>
+          <textarea id="ratingComment" placeholder="Anything you'd like to share? (optional)" rows="3"></textarea>
+          <button id="submitRatingButton" class="button primary compact">Submit feedback</button>
+          <button id="skipRatingButton" class="small-link centered">Skip</button>
+        </div>
+      </div>
+
+      <div id="cameraError" class="error-screen" hidden>
+        <span class="error-symbol">⌁</span>
+        <p class="eyebrow">Camera unavailable</p>
+        <h2>We need permission to see your roof.</h2>
+        <p>Allow camera access in Safari or Chrome settings, then try again. Your video is processed only on this device.</p>
+        <button id="retryButton" class="button primary">Try camera again</button>
+        <button id="demoButton" class="button ghost">Use a sample roof instead</button>
+      </div>
+
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      <div id="flash" class="flash"></div>
+    </main>
     </div>
     <script src="app.js"></script>
   </body>
 </html>
-
-
-
-
